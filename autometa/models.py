@@ -112,3 +112,149 @@ class Dropdown(Field):
         self._descripton = loaded_dump["description"]
         self._choices = set(loaded_dump["choices"])
         self._required = loaded_dump["required"]
+
+
+class ShortText(Field):
+    # Template
+    @property
+    def data(self):
+        return self._data
+
+    def init(self):
+        self._lower_limit = 0
+        self._upper_limit = 256
+        self._data = None
+        self._exclude_sequence = set()
+        return self
+
+    @property
+    def lower_limit(self):
+        return self._lower_limit
+
+    @lower_limit.setter
+    def lower_limit(self, limit):
+        if type(limit) is not int:
+            raise TypeError(
+                "Argument ``lower_limit`` must be of type ``int``, received ``{}`` instead.".format(
+                    type(limit)
+                )
+            )
+        if limit < 0:
+            raise ValueError("Argument ``lower_limit`` must be greater than 0")
+        if limit > 256:
+            raise ValueError("Argument ``lower_limit`` must be smaller than 256")
+        if limit > self.upper_limit:
+            raise ValueError(
+                "Argument ``lower_limit`` of value {} cannot be larger than ``upper_limit`` of value {}".format(
+                    limit, self.upper_limit
+                )
+            )
+        else:
+            self._lower_limit = limit
+
+    @lower_limit.deleter
+    def lower_limit(self):
+        self._lower_limit = 0
+
+    @property
+    def upper_limit(self):
+        return self._upper_limit
+
+    @upper_limit.setter
+    def upper_limit(self, limit):
+        if type(limit) is not int:
+            raise TypeError(
+                "Argument ``upper_limit`` must be of type ``int``, received ``{}`` instead.".format(
+                    type(limit)
+                )
+            )
+        if limit < 0:
+            raise ValueError("Argument ``upper_limit`` must be greater than 0")
+        if limit > 256:
+            raise ValueError("Argument ``upper_limit`` must be smaller than 256")
+        if limit < self.lower_limit:
+            raise ValueError(
+                "Argument ``upper_limit`` of value {} cannot be larger than ``lower_limit`` of value {}".format(
+                    limit, self.lower_limit
+                )
+            )
+        else:
+            self._upper_limit = limit
+
+    @upper_limit.deleter
+    def upper_limit(self):
+        self._upper_limit = 256
+
+    def exclude_sequence(self, sequence):
+        if type(sequence) is not str:
+            raise TypeError(
+                "Argument ``sequence`` must be of type ``str``, received ``{}`` instead.".format(
+                    type(sequence)
+                )
+            )
+        else:
+            self._exclude_characters.add(sequence)
+
+    def include_sequence(self, sequence):
+        if type(sequence) is not str:
+            raise TypeError(
+                "Argument ``sequence`` must be of type ``str``, received ``{}`` instead.".format(
+                    type(sequence)
+                )
+            )
+        else:
+            self._exclude_sequence.discard(sequence)
+
+    @property
+    def exclusion_list(self):
+        return self._exclude_sequence
+
+    # UI
+    @data.setter
+    def data(self, string):
+        if type(string) is not str:
+            raise TypeError("Argument ``string`` must be of type ``str``")
+        length = len(string)
+        if not (self.lower_limit <= length <= self.upper_limit):
+            raise ValueError(
+                "Argument ``string`` must be between {} and {} "
+                "characters in length, received length of {} instead".format(
+                    self.lower_limit, self.upper_limit, length
+                )
+            )
+        for char in self.exclusion_list:
+            if char in string:
+                raise ValueError(
+                    "Sequence `{}` not permitted in Argument ``string``".format(char)
+                )
+        else:
+            self._data = string
+
+    @data.deleter
+    def data(self):
+        self._data = None
+
+    def to_json(self):
+        name = self._name
+        if (name == None) or (name == ""):
+            raise ValueError("Attribute ``name`` not specified")
+        description = self._description
+        if (description == None) or (description == ""):
+            raise ValueError("No description given")
+        attributes = {
+            "type": "ShortText",
+            "name": name,
+            "description": description,
+            "lower_limit": self._lower_limit,
+            "upper_limit": self._upper_limit,
+            "required": self._required,
+        }
+        return json.dumps(attributes)
+
+    def from_json(self):
+        loaded_dump = json.loads(json_dump)
+        self._name = loaded_dump["name"]
+        self._descripton = loaded_dump["description"]
+        self._lower_limit = loaded_dump["lower_limit"]
+        self._upper_limit = loaded_dump["upper_limit"]
+        self._required = loaded_dump["required"]
