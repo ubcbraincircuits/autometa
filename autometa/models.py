@@ -258,3 +258,88 @@ class ShortText(Field):
         self._lower_limit = loaded_dump["lower_limit"]
         self._upper_limit = loaded_dump["upper_limit"]
         self._required = loaded_dump["required"]
+
+
+class CheckBoxes(Field):
+    def init(self):
+        self._min_choices = 0
+        self._max_choices = 256
+        self._choices = set()
+        self._selections = set()
+
+    @property
+    def choices(self):
+        return self._choices
+
+    @property
+    def min_choices(self):
+        return self._min_choices
+
+    @min_choices.setter
+    def min_choices(self, limit):
+        if type(limit) is not int:
+            raise TypeError(
+                "Argument ``min_choices`` must be of type ``int``, received ``{}`` instead.".format(
+                    type(limit)
+                )
+            )
+        if limit < 0:
+            raise ValueError("Argument ``min_choices`` must be greater than 0")
+        if limit > self.max_choices:
+            raise ValueError(
+                "Argument ``min_choices`` of value {} cannot be larger than ``max_choices`` of value {}".format(
+                    limit, self.max_choices
+                )
+            )
+        else:
+            self._min_choices = limit
+
+    @min_choices.deleter
+    def min_choices(self):
+        self._min_choices = 0
+
+    @property
+    def max_choices(self):
+        return self._max_choices
+
+    @max_choices.setter
+    def max_choices(self, limit):
+        if type(limit) is not int:
+            raise TypeError(
+                "Argument ``max_choices`` must be of type ``int``, received ``{}`` instead.".format(
+                    type(limit)
+                )
+            )
+        if limit < 0:
+            raise ValueError("Argument ``max_choices`` must be greater than 0")
+        if limit < self.min_choices:
+            raise ValueError(
+                "Argument ``max_choices`` of value {} cannot be larger than ``min_choices`` of value {}".format(
+                    limit, self.min_choices
+                )
+            )
+        else:
+            self._max_choices = limit
+
+    @max_choices.deleter
+    def max_choices(self):
+        self._max_choices = 256
+
+    def add_choice(self, choice):
+        self._choices.add(choice)
+
+    def remove_choice(self, choice):
+        self._choices.remove(choice)
+
+    def clear_all_choices(self):
+        self._choices.clear()
+
+    # UI
+    def add_selection(self, selection):
+        self._selections.add(selection)
+
+    def remove_selection(self, selection):
+        self._selections.remove(selection)
+
+    def clear_all_selections(self):
+        self._selections.clear()
