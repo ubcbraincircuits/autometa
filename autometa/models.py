@@ -343,3 +343,41 @@ class CheckBoxes(Field):
 
     def clear_all_selections(self):
         self._selections.clear()
+
+def DateTime(Field):
+    def init(self):
+        self._date = None
+        self._start_date = None
+        self._end_date = None
+        
+    @property 
+    def date(self):
+        return self._date
+    
+    @date.setter
+    def date(self, date):
+        self._date = date
+    
+    @property
+    def start_date(self):
+        return self._start_date
+    
+    @start_date.setter
+    def start_date(self, date):
+        pass # TODO
+    
+    @start_date.deleter
+    def start_date(self):
+        self._start_date = None
+        
+    @property
+    def end_date(self):
+        return self._start_date
+    
+    @end_date.setter
+    def end_date(self, date):
+        pass # TODO
+    
+    @end_date.deleter
+    def end_date(self):
+        self._end_date = None
