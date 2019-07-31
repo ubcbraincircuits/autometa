@@ -2,7 +2,7 @@ import pytest
 from autometa import models
 from random import randint 
 
-class TestShortText:
+class TestShortText(object):
     @pytest.fixture
     def shorttext(self):
         '''Returns instance of Dropdown'''
