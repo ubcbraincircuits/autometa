@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 
 class Field(ABC):
-    def __init__(self, name, description, required=False):
+    def __init__(self):
         self._name = None
         self._description = None
         self._required = False
@@ -124,7 +124,7 @@ class ShortText(Field):
         self._lower_limit = 0
         self._upper_limit = 256
         self._data = None
-        self._exclude_sequence = set()
+        self._exclude_sequences = set()
         return self
 
     @property
@@ -133,7 +133,9 @@ class ShortText(Field):
 
     @lower_limit.setter
     def lower_limit(self, limit):
-        if type(limit) is not int:
+        try: 
+            limit = int(limit)
+        except ValueError:
             raise TypeError(
                 "Argument ``lower_limit`` must be of type ``int``, received ``{}`` instead.".format(
                     type(limit)
@@ -162,7 +164,9 @@ class ShortText(Field):
 
     @upper_limit.setter
     def upper_limit(self, limit):
-        if type(limit) is not int:
+        try: 
+            limit = int(limit)
+        except ValueError:
             raise TypeError(
                 "Argument ``upper_limit`` must be of type ``int``, received ``{}`` instead.".format(
                     type(limit)
@@ -186,33 +190,39 @@ class ShortText(Field):
         self._upper_limit = 256
 
     def exclude_sequence(self, sequence):
-        if type(sequence) is not str:
+        try: 
+            sequence.capitalize()
+        except AttributeError:
             raise TypeError(
                 "Argument ``sequence`` must be of type ``str``, received ``{}`` instead.".format(
                     type(sequence)
                 )
             )
         else:
-            self._exclude_characters.add(sequence)
+            self._exclude_sequences.add(sequence)
 
     def include_sequence(self, sequence):
-        if type(sequence) is not str:
+        try: 
+            sequence.capitalize()
+        except AttributeError:
             raise TypeError(
                 "Argument ``sequence`` must be of type ``str``, received ``{}`` instead.".format(
                     type(sequence)
                 )
             )
         else:
-            self._exclude_sequence.discard(sequence)
+            self._exclude_sequences.discard(sequence)
 
     @property
     def exclusion_list(self):
-        return self._exclude_sequence
+        return self._exclude_sequences
 
     # UI
     @data.setter
     def data(self, string):
-        if type(string) is not str:
+        try: 
+            string.capitalize()
+        except AttributeError:
             raise TypeError("Argument ``string`` must be of type ``str``")
         length = len(string)
         if not (self.lower_limit <= length <= self.upper_limit):
@@ -277,7 +287,9 @@ class CheckBoxes(Field):
 
     @min_choices.setter
     def min_choices(self, limit):
-        if type(limit) is not int:
+        try: 
+            limit = int(limit)
+        except ValueError:
             raise TypeError(
                 "Argument ``min_choices`` must be of type ``int``, received ``{}`` instead.".format(
                     type(limit)
@@ -304,7 +316,9 @@ class CheckBoxes(Field):
 
     @max_choices.setter
     def max_choices(self, limit):
-        if type(limit) is not int:
+        try: 
+            limit = int(limit)
+        except ValueError:
             raise TypeError(
                 "Argument ``max_choices`` must be of type ``int``, received ``{}`` instead.".format(
                     type(limit)
